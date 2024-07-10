@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  fiodash-db:
+    container_name: fiodash-db
+    image: mysql:latest
+    env_file: .env
+    volumes:
+        - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+        test: ["CMD-SHELL", "mysqladmin ping -uuser -ppassword"]
+        interval: 10s
+        timeout: 5s
+        retries: 5
+    ports:
+      - "3306:3306"
+
+
+
+  fiodash-web:
+    container_name: fiodash-web
+    build: .
+    env_file: .env
+    ports:
+      - "80:5000"
+    depends_on:
+      - fiodash-db
+
+volumes:
+  mysql-data:
