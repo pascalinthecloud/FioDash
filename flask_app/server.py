@@ -137,18 +137,28 @@ html_template = """
             }
             data.forEach(row => {
                 let tr = document.createElement('tr');
+
                 let td_hostname = document.createElement('td');
                 td_hostname.innerText = row.hostname;
+
                 let td_read_iops = document.createElement('td');
                 td_read_iops.innerText = row.read_iops.toFixed(2);
+
                 let td_write_iops = document.createElement('td');
                 td_write_iops.innerText = row.write_iops.toFixed(2);
+
                 let td_timestamp = document.createElement('td');
                 td_timestamp.innerText = row.timestamp;
+
+                let td_cpu_usage = document.createElement('td');
+                td_cpu_usage.innerText = row.cpu_usage;
+
+
                 tr.appendChild(td_hostname);
                 tr.appendChild(td_read_iops);
                 tr.appendChild(td_write_iops);
                 tr.appendChild(td_timestamp);
+                tr.appendChild(td_cpu_usage);
                 table.appendChild(tr);
             });
         }
@@ -205,6 +215,7 @@ html_template = """
                 <th>Hostname</th>
                 <th>(&#x2205;) Read IOPS</th>
                 <th>(&#x2205;) Write IOPS</th>
+                <th>CPU Usage</th>
                 <th>(Last) Timestamp</th>
             </tr>
         </thead>
@@ -223,7 +234,7 @@ html_template = """
 def get_data():
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     cursor.execute('''
-        SELECT hostname, AVG(read_iops) as read_iops, AVG(write_iops) as write_iops, MAX(timestamp) as timestamp
+        SELECT hostname, AVG(read_iops) as read_iops, AVG(write_iops) as write_iops, MAX(timestamp) as timestamp, MAX(cpu_usage)
         FROM iops_data
         GROUP BY hostname
         ORDER BY hostname
@@ -237,7 +248,7 @@ def get_data():
 def get_data_by_hostname(hostname):
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     cursor.execute('''
-        SELECT hostname, read_iops, write_iops, timestamp
+        SELECT hostname, read_iops, write_iops, timestamp, cpu_usage
         FROM iops_data
         WHERE hostname = %s
         ORDER BY timestamp DESC
@@ -257,13 +268,14 @@ def update_data():
         hostname = json_data.get('hostname')
         read_iops = json_data.get('read_iops')
         write_iops = json_data.get('write_iops')
+        cpu_usage = json_data.get('cpu_usage')
 
-        if not all([hostname, read_iops, write_iops]):
+        if not all([hostname, read_iops, write_iops, cpu_usage]):
             return jsonify("Missing one or more required fields")
 
         cursor = mysql.connection.cursor()
-        cursor.execute('INSERT INTO iops_data (hostname, read_iops, write_iops) VALUES (%s, %s, %s)',
-                       (hostname, read_iops, write_iops))
+        cursor.execute('INSERT INTO iops_data (hostname, read_iops, write_iops, cpu_usage) VALUES (%s, %s, %s, %s)',
+                       (hostname, read_iops, write_iops, cpu_usage))
         mysql.connection.commit()
         cursor.close()
 
