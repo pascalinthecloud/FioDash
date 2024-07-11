@@ -149,8 +149,12 @@ html_template = """
 
                 let td_cpu_usage = document.createElement('td');
                 td_cpu_usage.innerText = row.cpu_usage + " %";
+
                 let td_timestamp = document.createElement('td');
                 td_timestamp.innerText = row.timestamp;
+
+                let td_ran_tests = document.createElement('td');
+                td_ran_tests.innerText = row.ran_tests;
 
 
 
@@ -159,6 +163,7 @@ html_template = """
                 tr.appendChild(td_write_iops);
                 tr.appendChild(td_cpu_usage);
                 tr.appendChild(td_timestamp);
+                tr.appendChild(td_ran_tests);
                 table.appendChild(tr);
             });
         }
@@ -217,6 +222,7 @@ html_template = """
                 <th>(&#x2205;) Write IOPS</th>
                 <th>(Max) CPU Usage</th>
                 <th>(Last) Timestamp</th>
+                <th>Ran tests</th>
             </tr>
         </thead>
         <tbody id="iops_table">
@@ -225,8 +231,6 @@ html_template = """
     </table>
 </body>
 </html>
-
-
 """
 
 
@@ -234,7 +238,7 @@ html_template = """
 def get_data():
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     cursor.execute('''
-        SELECT hostname, AVG(read_iops) as read_iops, AVG(write_iops) as write_iops, MAX(timestamp) as timestamp, MAX(cpu_usage) as cpu_usage
+        SELECT hostname, AVG(read_iops) as read_iops, AVG(write_iops) as write_iops, MAX(timestamp) as timestamp, MAX(cpu_usage) as cpu_usage, COUNT(hostname) as ran_tests
         FROM iops_data
         GROUP BY hostname
         ORDER BY hostname
