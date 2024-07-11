@@ -129,7 +129,7 @@ html_template = """
             if (data.length === 0) {
                 let tr = document.createElement('tr');
                 let td = document.createElement('td');
-                td.colSpan = 3;
+                td.colSpan = 5;
                 td.innerText = 'No data available';
                 tr.appendChild(td);
                 table.appendChild(tr);
@@ -147,18 +147,18 @@ html_template = """
                 let td_write_iops = document.createElement('td');
                 td_write_iops.innerText = row.write_iops.toFixed(2);
 
+                let td_cpu_usage = document.createElement('td');
+                td_cpu_usage.innerText = row.cpu_usage + " %";
                 let td_timestamp = document.createElement('td');
                 td_timestamp.innerText = row.timestamp;
 
-                let td_cpu_usage = document.createElement('td');
-                td_cpu_usage.innerText = row.cpu_usage;
 
 
                 tr.appendChild(td_hostname);
                 tr.appendChild(td_read_iops);
                 tr.appendChild(td_write_iops);
-                tr.appendChild(td_timestamp);
                 tr.appendChild(td_cpu_usage);
+                tr.appendChild(td_timestamp);
                 table.appendChild(tr);
             });
         }
@@ -215,7 +215,7 @@ html_template = """
                 <th>Hostname</th>
                 <th>(&#x2205;) Read IOPS</th>
                 <th>(&#x2205;) Write IOPS</th>
-                <th>CPU Usage</th>
+                <th>(Max) CPU Usage</th>
                 <th>(Last) Timestamp</th>
             </tr>
         </thead>
@@ -234,7 +234,7 @@ html_template = """
 def get_data():
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     cursor.execute('''
-        SELECT hostname, AVG(read_iops) as read_iops, AVG(write_iops) as write_iops, MAX(timestamp) as timestamp, MAX(cpu_usage)
+        SELECT hostname, AVG(read_iops) as read_iops, AVG(write_iops) as write_iops, MAX(timestamp) as timestamp, MAX(cpu_usage) as cpu_usage
         FROM iops_data
         GROUP BY hostname
         ORDER BY hostname
