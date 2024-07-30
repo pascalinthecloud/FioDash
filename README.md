@@ -8,6 +8,12 @@ Simple tool collecting fio results from multiple servers.
 
 ![image info](screenshots/main.png)
 
+## Setup server collecting the results
+
+```
+docker-compose up -d
+```
+
 ## Setup servers sending results to FioDash
 Use the following Cloud Init Config to run FioDash when the server starts up
 
