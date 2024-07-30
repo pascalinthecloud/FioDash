@@ -9,6 +9,7 @@ Simple tool collecting fio results from multiple servers.
 ![image info](screenshots/main.png)
 
 ## Setup server collecting the results
+Copy .env.template and adjust the values
 
 ```
 docker-compose up -d
